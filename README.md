@@ -1,4 +1,4 @@
-udacity253
-==========
+Udacity 253 Problem Set Solution
+================================
 
-Problems from Udacity 253
+This is a repository for my solutions to problems from [Udacity 253](https://www.udacity.com/course/cs253).
