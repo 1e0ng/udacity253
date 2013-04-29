@@ -1,0 +1,26 @@
+application: my-253
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /static
+  static_dir: static
+
+- url: /unit2/rot13
+  script: rot13.app
+
+- url: /blog.*
+  script: blog.app
+
+- url: /unit4/auth
+  script: auth.app
+
+- url: /.*
+  script: helloworld.app
+
+
+libraries:
+- name: jinja2
+  version: "2.6"
