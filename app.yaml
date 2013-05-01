@@ -1,4 +1,4 @@
-application: my-253
+application: udacity-web-development-253
 version: 1
 runtime: python27
 api_version: 1
@@ -11,7 +11,7 @@ handlers:
 - url: /unit2/rot13
   script: rot13.app
 
-- url: /blog.*
+- url: /unit3/blog.*
   script: blog.app
 
 - url: /unit4/auth

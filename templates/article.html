@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="post">
+    <div class="post-heading">
+        <a href="/blog/{{article.key().id()}}" class="post-title">{{article.subject}}</a>
+        <div class="post-date">{{article.created.strftime('%b %d, %Y')}}
+        </div>
+    </div>
+    <div class="post-content">
+        {{article.content | safe}}
+    </div>
+</div>
+{% endblock %}
