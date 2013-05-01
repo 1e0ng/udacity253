@@ -11,10 +11,10 @@ handlers:
 - url: /unit2/rot13
   script: rot13.app
 
-- url: /unit3/blog.*
+- url: /unit3/.*
   script: blog.app
 
-- url: /unit4/auth
+- url: /unit4/.*
   script: auth.app
 
 - url: /.*
