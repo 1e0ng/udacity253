@@ -29,12 +29,17 @@ class User(db.Model):
     password = db.StringProperty(required=True)
     email = db.StringProperty(required=False)
 
-def make_uid_str(uid, password, salt='hVseqI'):
+def hash_password(password, salt=None):
     if salt is None:
-        salt = ''.join([random.choice(string.letters) for _ in xrange(5)])
+        salt = ''.join([random.choice(string.letters) for _ in xrange(6)])
     salt = str(salt)
-    #return '%s|%s|%s' % (uid, hmac.new(salt, str(uid)+password).hexdigest(), salt)
-    return '%s|%s' % (uid, hmac.new(salt, str(uid)+password).hexdigest())
+    return '%s|%s' % (hmac.new(salt, password).hexdigest(), salt)
+
+def make_uid_cookie(uid, hash_pwd, salt=None):
+    if salt is None:
+        salt = ''.join([random.choice(string.letters) for _ in xrange(6)])
+    salt = str(salt)
+    return '%s|%s|%s' % (uid, hmac.new(salt, str(uid)+hash_pwd).hexdigest(), salt)
 
 class Signup(BaseHandler):
     def get(self):
@@ -64,24 +69,24 @@ class Signup(BaseHandler):
             self.render('signup.html', username_error='The user already'
                     ' exists.', username=username, email=email)
             return
-        user = User(username=username, password=password, email=email)
+        user = User(username=username, password=hash_password(password), email=email)
         user.put()
 
-        uid_str = make_uid_str(user.key().id(), user.password)
-        self.response.headers.add_header('Set-Cookie', 'user_id=%s' % uid_str)
+        uid_str = make_uid_cookie(user.key().id(), user.password)
+        self.response.headers.add_header('Set-Cookie', 'user_id=%s; path=/' % uid_str)
         self.redirect('/unit4/welcome')
         
 
 class Welcome(BaseHandler):
     def check_uid(self, uid_str):
         strs = uid_str.split('|')
-        if len(strs) != 2:
+        if len(strs) != 3:
             return False
-        uid, hmac = strs
+        uid, hmac, salt = strs
         user = User.get_by_id(int(uid))
         if not user:
             return False
-        if make_uid_str(uid, user.password) == uid_str:
+        if make_uid_cookie(uid, user.password, salt) == uid_str:
             return user
 
     def get(self):
@@ -93,8 +98,52 @@ class Welcome(BaseHandler):
  
         self.write('Welcome, ' + user.username)
 
+class Login(BaseHandler):
+    def get(self):
+        self.render('login.html')
+
+    def post(self):
+        username = self.request.get('username')
+        password = self.request.get('password')
+        if not username:
+            self.render('signup.html', username_error='Username is required.',
+                    username=username)
+            return
+        if not password:
+            self.render('signup.html', password_error='Password is required.',
+                    username=username)
+            return
+
+        user = db.GqlQuery('select * from User where username=:username',
+                username=username).get()
+        if not user:
+            self.render('signup.html', username_error='The user does not'
+                    ' exists.', username=username)
+            return
+        hash_pwd, salt = user.password.split('|')
+        if hash_password(password, salt) != user.password:
+            self.render('signup.html', password_error='Password is incorrect.')
+            return
+
+        uid_str = make_uid_cookie(user.key().id(), user.password)
+        self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % uid_str)
+        self.redirect('/unit4/welcome')
+
+class Logout(BaseHandler):
+    def get(self):
+        self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
+        self.redirect('/unit4/signup')
+
+class UserList(BaseHandler):
+    def get(self):
+        users = db.GqlQuery('select * from User')
+        self.render('users.html', users=users)
+
 app = webapp2.WSGIApplication([
     ('/unit4/signup', Signup),
     ('/unit4/welcome', Welcome),
+    ('/unit4/login', Login),
+    ('/unit4/users', UserList),
+    ('/unit4/logout', Logout),
     ],
     debug=True)
