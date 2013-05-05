@@ -3,7 +3,7 @@
 {% for article in articles %}
 <div class="post">
     <div class="post-heading">
-        <a href="/blog/{{article.key().id()}}" class="post-title">{{article.subject}}</a>
+        <a href="/unit6/{{article.key().id()}}" class="post-title">{{article.subject}}</a>
         <div class="post-date">{{article.created.strftime('%b %d, %Y')}}
         </div>
     </div>
@@ -13,4 +13,7 @@
 </div>
 <br><br>
 {% endfor %}
+<div>
+    Queried {{query_time}} seconds ago.
+</div>
 {% endblock %}
