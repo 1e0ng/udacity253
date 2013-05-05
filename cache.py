@@ -5,9 +5,11 @@ import hmac
 import string
 import json
 from datetime import datetime
+import logging
 
 import webapp2
 import jinja2
+
 
 from google.appengine.api import memcache
 from google.appengine.ext import db
@@ -212,15 +214,21 @@ class Logout(BaseHandler):
         self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
         self.redirect('/unit6/signup')
 
+class Flush(BaseHandler):
+    def get(self):
+        memcache.flush_all()
+        self.redirect('/unit6/')
+
 app = webapp2.WSGIApplication([
     ('/unit6/signup', Signup),
     ('/unit6/welcome', Welcome),
     ('/unit6/login', Login),
     ('/unit6/logout', Logout),
-    (r'/unit6/', MainPage),
+    (r'/unit6/?', MainPage),
     (r'/unit6/\.json', MainPageJson), 
     (r'/unit6/newpost', NewPage),
     (r'/unit6/(\d+)', ArticlePage),
     (r'/unit6/(\d+)\.json', ArticlePageJson),
+    (r'/unit6/flush', Flush),
     ],
     debug=True)

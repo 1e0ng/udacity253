@@ -20,8 +20,11 @@ handlers:
 - url: /unit5/.*
   script: api.app
 
-- url: /unit6/.*
+- url: /unit6.*
   script: cache.app
+
+- url: /final.*
+  script: final.app
 
 - url: /.*
   script: helloworld.app
