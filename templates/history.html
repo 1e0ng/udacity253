@@ -1,0 +1,10 @@
+<ul>
+    {% for wiki in wikis %}
+    <li>
+    {{wiki.created.strftime('%c')}}
+    {{wiki.content}}
+    <a href="/final{{wiki.url}}?id={{wiki.key().id()}}">view</a>
+    <a href="/final/_edit{{wiki.url}}?id={{wiki.key().id()}}">edit</a>
+    </li>
+    {% endfor %}
+</ul>
